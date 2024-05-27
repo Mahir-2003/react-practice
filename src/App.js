@@ -27,14 +27,17 @@ export default function Game() {
 
   const moves = history.map(( squares, move ) => {
     let description;
-    if (move > 0) {
+    if (move === currentMove) {
+      description = `You are at move #${move}`
+    }
+    else if (move > 0) {
       description = `Go to move #${move}`;
     } else {
       description = `Go to game start`;
     }
     return (
       <li key={move}>
-        <button onClick={() => jumpTo(move)}> {description} </button> 
+        {move === currentMove ? description : <button onClick={() => jumpTo(move)}> {description} </button>}
       </li>
     );
   });
@@ -60,6 +63,8 @@ function Board( {playerX, squares, onPlay} ) {
   
   if (winner) {
     status = <h1> Winner: {winner} </h1>;
+  } else if (squares.every((square) => square !== null)) {
+    status = <h1> It's a draw! </h1>;
   } else {
     status = <h1> Next player: {(playerX ? "X" : "O")} </h1>;
   }
