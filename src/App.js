@@ -9,14 +9,35 @@ function Square( {value, onSquareClick} ) {
 }
 
 export default function Game() {
-  const [playerX, setPlayerX] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquares = history[history.length - 1]
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentSquares = history[currentMove];
+  const playerX = currentMove % 2 === 0;
 
   function handlePlay( newSquares) {
-    setHistory([...history, newSquares]);
-    setPlayerX(!playerX);
+    //only want to keep history up to the current point, not the entire history (i.e: in the future)
+    const nextHistory = [...history.slice(0, currentMove + 1), newSquares]; 
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1); //each time a move is made, currentMove is updated to point to the latest history entry
   }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map(( squares, move ) => {
+    let description;
+    if (move > 0) {
+      description = `Go to move #${move}`;
+    } else {
+      description = `Go to game start`;
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}> {description} </button> 
+      </li>
+    );
+  });
 
   return (
     <div className = "game">
@@ -24,7 +45,7 @@ export default function Game() {
         <Board playerX = {playerX} squares = {currentSquares} onPlay={handlePlay} />
       </div>
       <div className='game-info'>
-        <ol>{/*TODO*/}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   );
