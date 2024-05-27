@@ -8,15 +8,35 @@ function Square( {value, onSquareClick} ) {
   );
 }
 
-export default function Board() {
-  const [squares, setSquares] = useState(Array(9).fill(null));
+export default function Game() {
   const [playerX, setPlayerX] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentSquares = history[history.length - 1]
+
+  function handlePlay( newSquares) {
+    setHistory([...history, newSquares]);
+    setPlayerX(!playerX);
+  }
+
+  return (
+    <div className = "game">
+      <div className = "game-board">
+        <Board playerX = {playerX} squares = {currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className='game-info'>
+        <ol>{/*TODO*/}</ol>
+      </div>
+    </div>
+  );
+}
+
+function Board( {playerX, squares, onPlay} ) {
   const winner = calculateWinner(squares);
 
   let status;
   
   if (winner) {
-    status = <h1>Winner: {winner}</h1>;
+    status = <h1> Winner: {winner} </h1>;
   } else {
     status = <h1> Next player: {(playerX ? "X" : "O")} </h1>;
   }
@@ -31,9 +51,7 @@ export default function Board() {
     } else {
       newSquares[index] = 'O';
     }
-
-    setPlayerX(!playerX) //do the opposite of current 
-    setSquares(newSquares);
+    onPlay(newSquares);
   }
 
   return (
