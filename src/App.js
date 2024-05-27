@@ -10,15 +10,35 @@ function Square( {value, onSquareClick} ) {
 
 export default function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
+  const [playerX, setPlayerX] = useState(true);
+  const winner = calculateWinner(squares);
+
+  let status;
+  
+  if (winner) {
+    status = <h1>Winner: {winner}</h1>;
+  } else {
+    status = <h1> Next player: {(playerX ? "X" : "O")} </h1>;
+  }
+
 
   function handleClick( index ) {
     const newSquares = squares.slice(); // copy of the squares array for storing new board
-    newSquares[index] = 'X';
+
+    if (newSquares[index] !== null || calculateWinner(squares)) return; // dont do anything if square is already filled
+    if (playerX) {
+      newSquares[index] = 'X';
+    } else {
+      newSquares[index] = 'O';
+    }
+
+    setPlayerX(!playerX) //do the opposite of current 
     setSquares(newSquares);
   }
 
   return (
     <>
+      <div className="status">{status}</div> {/**current status displayed above board >*/}
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -36,4 +56,25 @@ export default function Board() {
       </div>
     </>
   );
+
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2], // winning combinations
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        document.body.style.backgroundColor = squares[a] === 'X' ? 'green' : 'darkred';
+        return squares[a];
+      }
+    }
+    return null;
+  }
 }
